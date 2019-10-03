@@ -28,5 +28,6 @@ object RetrieveData extends App {
       .json("\\data-students.json")
 
     df.show()
+    spark.close()
   }
 }

@@ -2,7 +2,7 @@ name := "adPrediction"
 
 version := "0.1"
 
-scalaVersion := "2.11.12"
+scalaVersion := "2.12.10"
 
 libraryDependencies := Seq(
   // https://mvnrepository.com/artifact/org.apache.spark/spark-core
