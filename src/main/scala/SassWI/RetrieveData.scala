@@ -2,6 +2,7 @@ package SassWI
 
 import org.apache.spark.sql.SparkSession
 import org.apache.log4j.{Level, Logger}
+import SassWI.Etl
 
 object RetrieveData extends App {
 
@@ -36,4 +37,5 @@ object RetrieveData extends App {
 
     spark.close()
   }
+
 }
