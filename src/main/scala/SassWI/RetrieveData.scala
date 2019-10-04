@@ -1,7 +1,7 @@
 package SassWI
 
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.log4j.{Level, Logger}
 
 object RetrieveData extends App {
 
@@ -11,7 +11,8 @@ object RetrieveData extends App {
    * @param args arguments
    */
   override def main(args: Array[String]) {
-
+    Logger.getLogger("org").setLevel(Level.ERROR)
+    Logger.getLogger("akka").setLevel(Level.ERROR)
     //Create a spark Session
     val spark = SparkSession
       .builder()
@@ -20,14 +21,19 @@ object RetrieveData extends App {
       .config("spark.some.config.option", "some-value")
       .getOrCreate()
 
+    import spark.implicits._
+
     //Read a file
     val df = spark.read
       .option("header", "true")
       .option("delimiter", ",")
       .option("inferSchema", "true")
-      .json("\\data-students.json")
+      .json("data-students.json")
 
+    df.printSchema()
     df.show()
+    df.groupBy($"appOrSite").count().show()
+
     spark.close()
   }
 }
