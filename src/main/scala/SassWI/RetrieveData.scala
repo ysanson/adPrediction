@@ -32,9 +32,8 @@ object RetrieveData extends App {
       .json("data-students.json")
 
     df.printSchema()
-    SassWI.Etl.EtlToLowerCase(df)
-    df.show()
-    df.groupBy($"appOrSite").count().show()
+    val df2 = SassWI.Etl.EtlToLowerCase(df)
+    df2.show()
 
     spark.close()
   }
