@@ -32,6 +32,7 @@ object RetrieveData extends App {
       .json("data-students.json")
 
     df.printSchema()
+    SassWI.Etl.EtlToLowerCase(df)
     df.show()
     df.groupBy($"appOrSite").count().show()
 
