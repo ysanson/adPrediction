@@ -2,7 +2,7 @@ package SassWI
 
 import org.apache.spark.sql.SparkSession
 import org.apache.log4j.{Level, Logger}
-import SassWI.Etl
+import SassWI.Etl._
 
 object RetrieveData extends App {
 
@@ -22,8 +22,6 @@ object RetrieveData extends App {
       .config("spark.some.config.option", "some-value")
       .getOrCreate()
 
-    import spark.implicits._
-
     //Read a file
     val df = spark.read
       .option("header", "true")
@@ -32,9 +30,8 @@ object RetrieveData extends App {
       .json("data-students.json")
 
     df.printSchema()
-    val df2 = SassWI.Etl.EtlToLowerCase(df)
+    val df2 = interestsAsList(EtlToLowerCase(df))
     df2.show()
-
     spark.close()
   }
 
