@@ -41,7 +41,6 @@ object RetrieveData extends App {
     df2.show()
     df2.printSchema()
     val df3 = SassWI.Etl.CodeToInterest(df2, etldf)
-    println(df3)
     df3.printSchema()
     df3.select("interests").show()
     spark.close()

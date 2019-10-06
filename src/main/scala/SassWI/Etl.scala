@@ -19,38 +19,34 @@ object Etl {
     frame.withColumn("interests", split($"interests", ",").cast("array<String>"))
   }
 
-  def CodeToInterest(df: sql.DataFrame, etldf: sql.DataFrame) :sql.DataFrame = {
+  def CodeToInterest(df: sql.DataFrame, etldf: sql.DataFrame) : sql.DataFrame = {
     val spark =  SparkSession.builder().getOrCreate()
     import spark.implicits._
 
-    val transformList = (init:  Array[String]) => {
+    val transformList = (init:  List[String]) => {
       if(init == null) return null
-      init.map(code => {
-        println(code)
-        etldf.filter($"Code" === code).first().getAs[String]("Interests")
+      else init.map(code => {
+       println(code)
+        if(!code.startsWith("IAB")) code
+        else {
+          val tmp = etldf.filter($"code" === code)
+          tmp.show()
+          tmp
+            .first()
+            .getAs[String]("Interest")
+        }
       })
     }
 
     val etl = udf(transformList)
-    val testList = df.filter(not(isnull($"interests"))).first().getAs[mutable.WrappedArray[String]]("interests").toArray
-    testList.map(item => println(item))
+    etldf.show()
+    val testList : List[String] = df.filter(not(isnull($"interests")))
+      .first()
+      .getAs[mutable.WrappedArray[String]]("interests")
+      .toList
+      .filter(!_.isEmpty)
     println(transformList(testList))
-    df.withColumn("interests", etl('interests))
-
-    /*
-    val row = interestList.map((line: sql.Row) => {
-      println(line)
-      line.toSeq.iterator.map( code => {
-        println(code)
-        dico.map(l => if (l.get(0) == code) {
-          l.get(1)
-        })
-      }).toList
-    })*/
-    /*result.map(l => {
-      l.map(line => line.map(e => print(e) ))
-    })*/
-    //etldf
+    df.withColumn("interests", etl(col("interests")))
   }
 
 }
