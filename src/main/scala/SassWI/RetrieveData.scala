@@ -29,9 +29,21 @@ object RetrieveData extends App {
       .option("inferSchema", "true")
       .json("data-students.json")
 
-    df.printSchema()
+    // Read file for etl
+    var etldf = spark.read
+      .option("header", "true")
+      .option("delimiter", ";")
+      .option("inferSchema", "true")
+      .csv(("InterestTraduction.csv"))
+
+    //df.printSchema()
     val df2 = interestsAsList(EtlToLowerCase(df))
     df2.show()
+    df2.printSchema()
+    val df3 = SassWI.Etl.CodeToInterest(df2, etldf)
+    println(df3)
+    df3.printSchema()
+    df3.select("interests").show()
     spark.close()
   }
 
