@@ -42,7 +42,7 @@ object RetrieveData extends App {
     df2.printSchema()
     val df3 = SassWI.Etl.CodeToInterest(df2, etldf)
     df3.printSchema()
-    df3.select("interests").show()
+    df3.show()
     spark.close()
   }
 
