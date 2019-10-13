@@ -1,5 +1,6 @@
 package SassWI
 
+import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 import org.apache.log4j.{Level, Logger}
 import SassWI.Etl._
@@ -41,8 +42,8 @@ object RetrieveData extends App {
     df2.show()
     df2.printSchema()
     val df3 = SassWI.Etl.CodeToInterest(df2, etldf)
-    df3.printSchema()
     df3.show()
+    df3.select("newInterests").show(100)
     spark.close()
   }
 
