@@ -44,8 +44,8 @@ object RetrieveData extends App {
     val df3 = CodeToInterest(df2, etldf)
     df3.show()
     df3.select("newInterests").show(100)
-    allColsToLabels(df3, df3.columns)
-    //listToVector(df3)
+    //allColsToLabels(df3, df3.columns).show(20)
+    colsToLabels(df3,df3.columns).show(30)
     spark.close()
   }
 

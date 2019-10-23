@@ -10,5 +10,5 @@ libraryDependencies := Seq(
   // https://mvnrepository.com/artifact/org.apache.spark/spark-sql
   "org.apache.spark" %% "spark-sql" % "2.4.4",
   // https://mvnrepository.com/artifact/org.apache.spark/spark-mllib
-  "org.apache.spark" %% "spark-mllib" % "2.4.4" % "runtime"
+  "org.apache.spark" %% "spark-mllib" % "2.4.4"
 )
