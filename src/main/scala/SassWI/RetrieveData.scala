@@ -41,9 +41,11 @@ object RetrieveData extends App {
     val df2 = interestsAsList(EtlToLowerCase(df))
     df2.show()
     df2.printSchema()
-    val df3 = SassWI.Etl.CodeToInterest(df2, etldf)
+    val df3 = CodeToInterest(df2, etldf)
     df3.show()
     df3.select("newInterests").show(100)
+    allColsToLabels(df3, df3.columns)
+    //listToVector(df3)
     spark.close()
   }
 
