@@ -1,6 +1,5 @@
 package SassWI
 
-import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 import org.apache.log4j.{Level, Logger}
 import SassWI.Etl._
@@ -31,7 +30,7 @@ object RetrieveData extends App {
       .json("data-students.json")
 
     // Read file for etl
-    var etldf = spark.read
+    val etldf = spark.read
       .option("header", "true")
       .option("delimiter", ";")
       .option("inferSchema", "true")
@@ -41,11 +40,11 @@ object RetrieveData extends App {
     val df2 = interestsAsList(EtlToLowerCase(df))
     df2.show()
     df2.printSchema()
-    val df3 = CodeToInterest(df2, etldf)
+    val df3 = codeToInterest(df2, etldf)
     df3.show()
-    df3.select("newInterests").show(100)
+    explodeInterests(df3, etldf).show()
     //allColsToLabels(df3, df3.columns).show(20)
-    colsToLabels(df3,df3.columns).show(30)
+    //colsToLabels(df3,df3.columns).show(30)
     spark.close()
   }
 
