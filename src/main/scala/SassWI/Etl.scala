@@ -6,6 +6,7 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.SparkContext
 import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler}
 import org.apache.spark.ml.linalg.Vectors
+import org.apache.spark.sql.types.BooleanType
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -72,8 +73,11 @@ object Etl {
       else {
         val interest = interests.head
         val newDf = df
-          .withColumn(interest, when($"newInterests".isNull, false)
-            .otherwise(array_contains($"newInterests", interest)))
+          .withColumn(interest, when($"newInterests".isNull, 0.0)
+            .otherwise(
+              when(array_contains($"newInterests", interest), 1.0)
+                .otherwise(0.0)
+            ))
         internal(newDf, interests.tail)
       }
     }
@@ -81,25 +85,38 @@ object Etl {
     internal(df, interests).drop("interests", "newInterests")
   }
 
+  /**
+   * Calls the method to convert all the string values to numeric values on all columns of the dataframe
+   * @param df the original dataframe
+   * @param arr the array of column
+   * @return the new dataframe
+   */
   @tailrec
   def colsToLabels(df: sql.DataFrame, arr: Array[String]): sql.DataFrame = {
     println(arr.head)
     if (arr.tail.length > 0) {
       val dfWithoutNull = filterNullValues(df, arr.head)
-      colsToLabels(stringToLabels(dfWithoutNull, arr.head), arr.tail)
+      colsToLabels(stringToNumeric(dfWithoutNull, arr.head), arr.tail)
     }
     else filterNullValues(df, arr.head)
   }
 
   def filterNullValues(df: sql.DataFrame, colName: String): sql.DataFrame = {
     val array_ = udf(() => Array.empty[Int])
-
-    if (colName == "interests" || colName == "size" || colName == "newInterests") df.withColumn(colName, coalesce(df.col(colName), array_()))
-    else if (colName == "label") df.withColumn(colName, when(df.col(colName), 1).otherwise(0))
-    else df.withColumn(colName, when(df.col(colName).isNull, 0).otherwise(df.col(colName)))
+    val booleanCols = df.schema.fields.filter( x => x.dataType == BooleanType && x.name == colName)
+    if (colName == "interests" || colName == "size") df.withColumn(colName, coalesce(df.col(colName), array_()))
+    else if (booleanCols.length > 0) df.withColumn(colName, when(df.col(colName), 1).otherwise(0))
+    else if (colName != "interests" && colName != "newInterests") df.withColumn(colName, when(df.col(colName).isNull, 0).otherwise(df.col(colName)))
+    else df
   }
 
-  def stringToLabels(df: sql.DataFrame, colName: String): sql.DataFrame = {
+  /**
+   * Converts all the string values to numeric values
+   * @param df the original datafrale
+   * @param colName the name of the column where the changes will be done
+   * @return the new dataframe
+   */
+  def stringToNumeric(df: sql.DataFrame, colName: String): sql.DataFrame = {
     val indexer = new StringIndexer()
       .setInputCol(colName)
       .setOutputCol(colName + "Index")
@@ -107,7 +124,6 @@ object Etl {
     if (colName == "interests" || colName == "size" || colName == "newInterests") df
     else {
       val indexed = indexer.fit(df).transform(df)
-      indexed.show()
       indexed.drop(colName)
     }
   }

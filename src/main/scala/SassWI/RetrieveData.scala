@@ -42,9 +42,9 @@ object RetrieveData extends App {
     df2.printSchema()
     val df3 = codeToInterest(df2, etldf)
     df3.show()
-    explodeInterests(df3, etldf).show()
-    //allColsToLabels(df3, df3.columns).show(20)
-    //colsToLabels(df3,df3.columns).show(30)
+    val df4 = colsToLabels(df3, df3.columns)
+    val df5 = explodeInterests(df4, etldf)
+    df5.show()
     spark.close()
   }
 
