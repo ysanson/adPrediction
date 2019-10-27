@@ -86,7 +86,7 @@ object Etl {
   }
 
   /**
-   * Calls the method to convert all the string values to numeric values on all columns of the dataframe
+   * Calls the method to convert all the string values to numeric values on all columns of the dataframe.
    * @param df the original dataframe
    * @param arr the array of column
    * @return the new dataframe
@@ -101,6 +101,12 @@ object Etl {
     else filterNullValues(df, arr.head)
   }
 
+  /**
+   * Replace null value par 0.
+   * @param df the original dataframe
+   * @param colName column name
+   * @return a new dataframe without null value
+   */
   def filterNullValues(df: sql.DataFrame, colName: String): sql.DataFrame = {
     val array_ = udf(() => Array.empty[Int])
     val booleanCols = df.schema.fields.filter( x => x.dataType == BooleanType && x.name == colName)
@@ -128,15 +134,17 @@ object Etl {
     }
   }
 
-
   //Columns must be numeric values
   def listToVector(df: sql.DataFrame): sql.DataFrame = {
+    //remove the size columns because it is always the same values
+    val columns: Array[String] = df.columns.filter(c => c != "size" && c != "u.s.military" && c!= "u.s.governmentresources")
+    //columns.map(e => print("\"" + e + "\"," + " "))
     val assembler = new VectorAssembler()
-      .setInputCols(Array("appOrSite", "bidfloor", "city", "exchange", "impid", "label", "media", "network", "os", "publisher", "size", "type", "user", "newInterests"))
+      .setInputCols(columns)
       .setOutputCol("vectorOutput")
 
     val output = assembler.transform(df)
-    output.select("features").show(false)
+    output.select("vectorOutput").show(false)
     output
   }
 }

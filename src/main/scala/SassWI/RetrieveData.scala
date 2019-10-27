@@ -14,6 +14,7 @@ object RetrieveData extends App {
   override def main(args: Array[String]) {
     Logger.getLogger("org").setLevel(Level.ERROR)
     Logger.getLogger("akka").setLevel(Level.ERROR)
+
     //Create a spark Session
     val spark = SparkSession
       .builder()
@@ -38,13 +39,15 @@ object RetrieveData extends App {
 
     //df.printSchema()
     val df2 = interestsAsList(EtlToLowerCase(df))
-    df2.show()
-    df2.printSchema()
+   // df2.show()
+    //df2.printSchema()
     val df3 = codeToInterest(df2, etldf)
-    df3.show()
+   // df3.show()
     val df4 = colsToLabels(df3, df3.columns)
     val df5 = explodeInterests(df4, etldf)
     df5.show()
+    val df6 = listToVector(df5)
+    df6.show()
     spark.close()
   }
 
