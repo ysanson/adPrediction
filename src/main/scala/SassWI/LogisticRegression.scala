@@ -13,8 +13,9 @@ object LogisticRegression {
   def logisticRegressionMethod(df: sql.DataFrame): Unit = {
     //load data in RDD labelPoint
     //val data = MLUtils.loadLibSVMFile(new SparkContext( new SparkConf()), "path")
-    val data: RDD[Row] = df.select("VectorOutput").limit(20).rdd
-    val d = data.map((l:Row) => LabeledPoint(l.getAs(6), Vectors.dense(l.getDouble(0))))
+    val data: RDD[Row] = df.select("VectorOutput", "labelIndex").limit(20).rdd
+    //transform row into labeledPoint
+    val d = data.map((l:Row) => LabeledPoint(l.fieldIndex("labelIndex"), Vectors.dense(l.getDouble(l.fieldIndex("VectorOutput")))))
 
     // Split data into 2 datasets: training data and test data
     val splits = d.randomSplit(Array(0.7, 0.3), seed = 11L)

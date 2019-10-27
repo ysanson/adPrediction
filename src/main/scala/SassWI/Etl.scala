@@ -136,8 +136,8 @@ object Etl {
 
   //Columns must be numeric values
   def listToVector(df: sql.DataFrame): sql.DataFrame = {
-    //remove the size columns because it is always the same values
-    val columns: Array[String] = df.columns.filter(c => c != "size" && c != "u.s.military" && c!= "u.s.governmentresources")
+    //remove the size columns because it is always the same values and label because it is the column to predict
+    val columns: Array[String] = df.columns.filter(c => c != "size" && c != "labelIndex" && c != "u.s.military" && c!= "u.s.governmentresources")
     //columns.map(e => print("\"" + e + "\"," + " "))
     val assembler = new VectorAssembler()
       .setInputCols(columns)
