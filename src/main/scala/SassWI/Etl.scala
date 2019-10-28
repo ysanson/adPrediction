@@ -138,12 +138,26 @@ object Etl {
   def listToVector(df: sql.DataFrame): sql.DataFrame = {
     //remove the size columns because it is always the same values and label because it is the column to predict
     val columns: Array[String] = df.columns.filter(c => c != "size" && c != "labelIndex" && c != "u.s.military" && c!= "u.s.governmentresources")
+    val firstPart = columns.take(columns.length / 2)
+    val secondPart = columns.drop(columns.length / 2)
     //columns.map(e => print("\"" + e + "\"," + " "))
-    val assembler = new VectorAssembler()
-      .setInputCols(columns)
+    val assembler1 = new VectorAssembler()
+      .setInputCols(firstPart)
+      .setOutputCol("vector1")
+
+    val assembler2 = new VectorAssembler()
+      .setInputCols(secondPart)
+      .setOutputCol("vector2")
+
+    val output1 = assembler1.transform(df)
+    val output2 = assembler2.transform(output1)
+
+    val finalAssembler = new VectorAssembler()
+      .setInputCols(Array("vector1", "vector2"))
       .setOutputCol("vectorOutput")
 
-    val output = assembler.transform(df)
+
+    val output = finalAssembler.transform(output2)
     output.select("vectorOutput").show(false)
     output
   }
