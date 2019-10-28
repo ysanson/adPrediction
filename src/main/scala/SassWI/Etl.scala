@@ -157,7 +157,7 @@ object Etl {
       .setOutputCol("vectorOutput")
 
 
-    val output = finalAssembler.transform(output2)
+    val output = finalAssembler.transform(output2).drop("vector1", "vector2")
     output.select("vectorOutput").show(false)
     output
   }
