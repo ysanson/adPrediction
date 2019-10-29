@@ -48,7 +48,8 @@ object RetrieveData extends App {
     df5.show()
     val df6 = listToVector(df5)
     df6.show()
-    LogisticRegression.logisticRegressionMethod(df6)
+    //LogisticRegression.logisticRegressionMethod(df6)
+    LogisticRegression.speedyLR(df6)
     //DecisionTrees.performCalculation(df6)
     spark.close()
   }
