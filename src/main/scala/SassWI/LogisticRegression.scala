@@ -7,15 +7,16 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql
 import org.apache.spark.sql.Row
+import com.github.fommil.netlib._
 
 object LogisticRegression {
 
   def logisticRegressionMethod(df: sql.DataFrame): Unit = {
     //load data in RDD labelPoint
     //val data = MLUtils.loadLibSVMFile(new SparkContext( new SparkConf()), "path")
-    val data: RDD[Row] = df.select("vectorOutput", "labelIndex").limit(20).rdd
+    val data: RDD[Row] = df.select("features", "labelIndex").limit(20).rdd
     //transform row into labeledPoint
-    val d = data.map((l:Row) => LabeledPoint(l.fieldIndex("labelIndex"), Vectors.dense(l.getDouble(l.fieldIndex("VectorOutput")))))
+    val d: RDD[LabeledPoint] = data.map((l:Row) => LabeledPoint(l.fieldIndex("labelIndex"), Vectors.dense(l.fieldIndex("features"))))
 
     // Split data into 2 datasets: training data and test data
     val splits = d.randomSplit(Array(0.7, 0.3), seed = 11L)
@@ -36,7 +37,7 @@ object LogisticRegression {
     //add accuracy of the model
     val metrics = new MulticlassMetrics(predictionAndLabels)
     val accuracy = metrics.accuracy
-    println("Model Accuracy =" + accuracy)
+    println("Model Accuracy = " + accuracy)
 
     // Save and load model
 

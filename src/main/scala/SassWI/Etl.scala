@@ -67,6 +67,7 @@ object Etl {
   def explodeInterests(df: sql.DataFrame, interestsList: sql.DataFrame): sql.DataFrame = {
     val spark = SparkSession.builder().getOrCreate()
     import spark.implicits._
+
     @tailrec
     def internal(df: sql.DataFrame, interests: Seq[String]): sql.DataFrame = {
       if(interests.isEmpty) df
@@ -78,9 +79,11 @@ object Etl {
               when(array_contains($"newInterests", interest), 1.0)
                 .otherwise(0.0)
             ))
+
         internal(newDf, interests.tail)
       }
     }
+
     val interests: Seq[String] = interestsList.select("Interest").rdd.map(r => r(0).asInstanceOf[String].toLowerCase).collect()
     internal(df, interests).drop("interests", "newInterests")
   }
@@ -154,11 +157,11 @@ object Etl {
 
     val finalAssembler = new VectorAssembler()
       .setInputCols(Array("vector1", "vector2"))
-      .setOutputCol("vectorOutput")
+      .setOutputCol("features")
 
 
     val output = finalAssembler.transform(output2).drop("vector1", "vector2")
-    output.select("vectorOutput").show(false)
+    output.select("features").show(false)
     output
   }
 }
