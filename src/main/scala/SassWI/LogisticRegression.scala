@@ -1,6 +1,6 @@
 package SassWI
 
-import org.apache.spark.ml.classification.LogisticRegression
+import org.apache.spark.ml.classification.{LogisticRegression, LogisticRegressionModel}
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.mllib.classification.LogisticRegressionWithLBFGS
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
@@ -54,7 +54,7 @@ object LogisticRegression {
 
   }
 
-  def speedyLR(df: sql.DataFrame): Unit = {
+  def speedyLR(df: sql.DataFrame): LogisticRegressionModel = {
 
     val data = df.select("labelIndex", "features").withColumnRenamed("labelIndex", "label")
     // Split data into 2 datasets: training data and test data
