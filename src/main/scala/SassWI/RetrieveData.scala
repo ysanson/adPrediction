@@ -49,7 +49,8 @@ object RetrieveData extends App {
     val df6 = listToVector(df5)
     df6.show()
     //LogisticRegression.logisticRegressionMethod(df6)
-    LogisticRegression.speedyLR(df6)
+    //LogisticRegression.speedyLR(df6)
+    MultilayerPerceptron.MultilayerPerceptronMethod(df6)
     //DecisionTrees.performCalculation(df6)
     spark.close()
   }

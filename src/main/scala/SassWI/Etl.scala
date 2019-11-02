@@ -128,7 +128,7 @@ object Etl {
   def stringToNumeric(df: sql.DataFrame, colName: String): sql.DataFrame = {
     val indexer = new StringIndexer()
       .setInputCol(colName)
-      .setOutputCol(colName + "Index")
+      .setOutputCol(colName+"Index")
 
     if (colName == "interests" || colName == "size" || colName == "newInterests") df
     else {
