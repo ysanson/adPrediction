@@ -6,7 +6,7 @@ import org.apache.spark.sql
 
 object MultilayerPerceptron {
 
-  def MultilayerPerceptronMethod(df : sql.DataFrame, nbCols: Int) : Unit ={
+  def MultilayerPerceptronMethod(df : sql.DataFrame) : Unit ={
 
     val data = df.select("labelIndex", "features").withColumnRenamed("labelIndex", "label")
 
@@ -25,7 +25,7 @@ object MultilayerPerceptron {
       .setLayers(layers)
       .setBlockSize(128)
       .setSeed(1234L)
-      .setMaxIter(15)
+      .setMaxIter(100)
 
     // train the model
     val model = trainer.fit(train)
