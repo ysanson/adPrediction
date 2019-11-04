@@ -48,7 +48,9 @@ object LogisticRegression {
     val labels = metrics.labels
     labels.foreach { l =>
       println(s"Precision($l) = " + metrics.precision(l))
+      println(s"Recall ($l) = " + metrics.recall(l))
     }
+
 
     // Save and load model
 
@@ -71,7 +73,7 @@ object LogisticRegression {
     //println(s"Multinomial coefficients: ${model.coefficientMatrix}")
     //println(s"Multinomial intercepts: ${model.interceptVector}")
 
-    val predictions = model.transform(trainingData)
+    val predictions = model.transform(testData)
 
     //add accuracy of the model
     val evaluator = new MulticlassClassificationEvaluator()
@@ -83,10 +85,10 @@ object LogisticRegression {
 
     println("Accuracy = " + accuracy)
 
-    val trainingSummary = model.summary
-    val objectiveHistory = trainingSummary.objectiveHistory
-    println("objectiveHistory:")
-    objectiveHistory.foreach(loss => println(loss))
+    //val trainingSummary = model.summary
+    //val objectiveHistory = trainingSummary.objectiveHistory
+    //println("objectiveHistory:")
+    //objectiveHistory.foreach(loss => println(loss))
 
     // Save and load model
     model
