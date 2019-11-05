@@ -1,11 +1,9 @@
-package SassWI
+package SassWI.transformations
 
-import org.apache.spark.sql
-import org.apache.spark.sql.{Column, SparkSession}
-import org.apache.spark.sql.functions._
-import org.apache.spark.SparkContext
 import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler}
-import org.apache.spark.ml.linalg.Vectors
+import org.apache.spark.sql
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.BooleanType
 
 import scala.annotation.tailrec
@@ -20,7 +18,13 @@ object Etl {
   def EtlToLowerCase(frame: sql.DataFrame): sql.DataFrame = {
     val spark = SparkSession.builder().getOrCreate()
     import spark.implicits._
-    frame.withColumn("os", lower($"os"))
+    harmonizeWindows(frame.withColumn("os", lower($"os")))
+  }
+
+  def harmonizeWindows(df: sql.DataFrame): sql.DataFrame = {
+    val spark = SparkSession.builder().getOrCreate()
+    import spark.implicits._
+    df.withColumn("os", when($"os".contains("windows"), "windows").otherwise($"os"))
   }
 
   /**
@@ -40,7 +44,7 @@ object Etl {
    * @param codesList the codes list with their labels.
    * @return the new dataframe.
    */
-  def codeToInterest(df: sql.DataFrame, codesList: sql.DataFrame): sql.DataFrame = {
+  def codeToInterest(codesList: sql.DataFrame)(df: sql.DataFrame): sql.DataFrame = {
     val spark = SparkSession.builder().getOrCreate()
     import spark.implicits._
     val codes: Map[String, String] = codesList.as[(String, String)].collect().toMap
@@ -64,7 +68,7 @@ object Etl {
    * @param interestsList the interests list
    * @return the new dataframe.
    */
-  def explodeInterests(df: sql.DataFrame, interestsList: sql.DataFrame): sql.DataFrame = {
+  def explodeInterests(interestsList: sql.DataFrame)(df: sql.DataFrame): sql.DataFrame = {
     val spark = SparkSession.builder().getOrCreate()
     import spark.implicits._
 
@@ -72,7 +76,7 @@ object Etl {
     def internal(df: sql.DataFrame, interests: Seq[String]): sql.DataFrame = {
       if(interests.isEmpty) df
       else {
-        val interest = interests.head
+        val interest = interests.head.replace(".", "")
         val newDf = df
           .withColumn(interest, when($"newInterests".isNull, 0.0)
             .otherwise(
@@ -137,10 +141,15 @@ object Etl {
     }
   }
 
-  //Columns must be numeric values
+  /**
+   * Transforms the lists to vectors.
+   * Columns must be numeric!
+   * @param df the original dataframe
+   * @return the dataframe with a feature columns.
+   */
   def listToVector(df: sql.DataFrame): sql.DataFrame = {
     //remove the size columns because it is always the same values and label because it is the column to predict
-    val columns: Array[String] = df.columns.filter(c => c != "size" && c != "labelIndex" && c != "u.s.military" && c!= "u.s.governmentresources")
+    val columns: Array[String] = df.columns.filter(c => c != "size" && c != "labelIndex")
     val firstPart = columns.take(columns.length / 2)
     val secondPart = columns.drop(columns.length / 2)
     //columns.map(e => print("\"" + e + "\"," + " "))
@@ -165,4 +174,3 @@ object Etl {
     output
   }
 }
-

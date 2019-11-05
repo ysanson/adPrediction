@@ -1,8 +1,9 @@
-package SassWI
+package SassWI.train
 
-import org.apache.spark.sql.SparkSession
+import SassWI.transformations.Etl._
 import org.apache.log4j.{Level, Logger}
-import SassWI.Etl._
+import org.apache.spark.sql
+import org.apache.spark.sql.SparkSession
 
 object RetrieveData extends App {
 
@@ -31,27 +32,31 @@ object RetrieveData extends App {
       .json("data-students.json")
 
     // Read file for etl
-    val etldf = spark.read
-      .option("header", "true")
-      .option("delimiter", ";")
-      .option("inferSchema", "true")
-      .csv(("InterestTraduction.csv"))
+    def readInterests(): sql.DataFrame = {
+      spark.read
+        .option("header", "true")
+        .option("delimiter", ";")
+        .option("inferSchema", "true")
+        .csv(("InterestTraduction.csv"))
+    }
 
-    //df.printSchema()
-    val df2 = interestsAsList(EtlToLowerCase(df))
-   // df2.show()
-    //df2.printSchema()
-    val df3 = codeToInterest(df2, etldf)
-   // df3.show()
-    val df4 = colsToLabels(df3, df3.columns)
-    val df5 = explodeInterests(df4, etldf)
-    df5.show()
-    val df6 = listToVector(df5)
-    df6.show()
+    val etldf = readInterests()
+
+    val df2 = df.transform(EtlToLowerCase)
+      .transform(interestsAsList)
+      .transform(codeToInterest(etldf))
+
+    val df3 = colsToLabels(df2, df2.columns)
+      .transform(explodeInterests(etldf))
+      .transform(listToVector)
+
+
     //LogisticRegression.logisticRegressionMethod(df6)
-    val model = LogisticRegression.speedyLR(df6)
+    val model = LogisticRegression.speedyLR(df3)
+    //LogisticRegression.randomForestAlgorithm(df6)
     //MultilayerPerceptron.MultilayerPerceptronMethod(df6)
     //DecisionTrees.performCalculation(df6)
+
     spark.close()
   }
 
