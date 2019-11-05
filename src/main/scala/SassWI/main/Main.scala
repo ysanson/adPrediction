@@ -20,6 +20,6 @@ object Main extends App {
 
     if(args.length == 0) Console.println("No args given, exiting.")
     else if(args(0) == "train") TrainModel.train(spark)
-    else Predict.predict(spark, args(1))
+    else if(args(0) == "predict") Predict.predict(spark, args(1))
   }
 }

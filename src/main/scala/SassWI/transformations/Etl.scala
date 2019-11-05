@@ -136,7 +136,7 @@ object Etl {
       .setInputCol(colName)
       .setOutputCol(colName+"Index")
 
-    if (colName == "interests" || colName == "size" || colName == "newInterests") df
+    if (colName == "interests" || colName == "size" || colName == "newInterests" || colName == "id") df
     else {
       val indexed = indexer.fit(df).transform(df)
       indexed.drop(colName)
@@ -151,7 +151,7 @@ object Etl {
    */
   def listToVector(df: sql.DataFrame): sql.DataFrame = {
     //remove the size columns because it is always the same values and label because it is the column to predict
-    val columns: Array[String] = df.columns.filter(c => c != "size" && c != "labelIndex")
+    val columns: Array[String] = df.columns.filter(c => c != "size" && c != "labelIndex" && c != "id")
     val firstPart = columns.take(columns.length / 2)
     val secondPart = columns.drop(columns.length / 2)
     //columns.map(e => print("\"" + e + "\"," + " "))
@@ -169,7 +169,6 @@ object Etl {
     val finalAssembler = new VectorAssembler()
       .setInputCols(Array("vector1", "vector2"))
       .setOutputCol("features")
-
 
     val output = finalAssembler.transform(output2).drop("vector1", "vector2")
     output.select("features").show(false)

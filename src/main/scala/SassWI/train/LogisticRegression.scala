@@ -79,7 +79,6 @@ object LogisticRegression {
       .setLabelCol("label")
       .setFeaturesCol("features")
       .setMaxIter(1000)
-      //.setWeightCol("classWeightCol")
       .fit(trainingData)
 
     println(s"Coefficients: ${model.coefficients} \nIntercept: ${model.intercept}")
