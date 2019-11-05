@@ -8,6 +8,7 @@ object TransformDataset {
     val df2 = originalDf.transform(EtlToLowerCase)
       .transform(interestsAsList)
       .transform(codeToInterest(interests))
+    df2.show()
 
     colsToLabels(df2, df2.columns)
       .transform(explodeInterests(interests))
