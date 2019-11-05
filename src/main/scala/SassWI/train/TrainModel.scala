@@ -11,7 +11,6 @@ object TrainModel {
    */
   def train(spark: SparkSession): Unit = {
 
-
     //Read a file
     val df = spark.read
       .option("header", "true")

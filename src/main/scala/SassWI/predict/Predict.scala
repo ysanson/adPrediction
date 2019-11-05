@@ -26,5 +26,7 @@ object Predict{
     val model = LogisticRegressionModel.load("model").setPredictionCol("features")
     val predictions = model.transform(data.select("user", "features"))
     val result = data.join(predictions/*, data("user") == predictions("user")*/)
+    result.show()
+    result.write.csv("output.csv")
   }
 }
