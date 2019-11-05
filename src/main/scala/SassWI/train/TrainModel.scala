@@ -1,11 +1,12 @@
 package SassWI.train
 
 import SassWI.transformations.Etl._
+import SassWI.transformations.TransformDataset
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql
 import org.apache.spark.sql.SparkSession
 
-object RetrieveData extends App {
+object TrainModel extends App {
 
   /**
    * Main function
@@ -42,17 +43,11 @@ object RetrieveData extends App {
 
     val etldf = readInterests()
 
-    val df2 = df.transform(EtlToLowerCase)
-      .transform(interestsAsList)
-      .transform(codeToInterest(etldf))
-
-    val df3 = colsToLabels(df2, df2.columns)
-      .transform(explodeInterests(etldf))
-      .transform(listToVector)
-
+    val data = TransformDataset.transform(df, etldf)
 
     //LogisticRegression.logisticRegressionMethod(df6)
-    val model = LogisticRegression.speedyLR(df3)
+    val model = LogisticRegression.speedyLR(data)
+    model.save("model")
     //LogisticRegression.randomForestAlgorithm(df6)
     //MultilayerPerceptron.MultilayerPerceptronMethod(df6)
     //DecisionTrees.performCalculation(df6)

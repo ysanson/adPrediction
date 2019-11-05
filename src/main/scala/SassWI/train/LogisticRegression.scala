@@ -2,18 +2,19 @@ package SassWI.train
 
 import org.apache.spark.ml.classification.{LogisticRegression, LogisticRegressionModel}
 import org.apache.spark.mllib.classification.LogisticRegressionWithLBFGS
-import org.apache.spark.mllib.evaluation.MulticlassMetrics
+import org.apache.spark.mllib.evaluation.{BinaryClassificationMetrics, MulticlassMetrics}
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Row, SparkSession}
 
 object LogisticRegression {
 
 
   def calculateMetrics(predsAndLabels: RDD[(Double, Double)]): MulticlassMetrics = {
     val metrics = new MulticlassMetrics(predsAndLabels)
+    val bMetrics = new BinaryClassificationMetrics(predsAndLabels)
     val accuracy = metrics.accuracy
     println(s"Accuracy = $accuracy")
 
@@ -27,6 +28,12 @@ object LogisticRegression {
       println(s"Precision($l) = " + metrics.precision(l))
       println(s"Recall ($l) = " + metrics.recall(l))
     }
+
+    println(bMetrics.roc)
+    // AUROC
+    val auROC = bMetrics.areaUnderROC
+    println("Area under ROC = " + auROC)
+
     metrics
   }
 
@@ -57,6 +64,8 @@ object LogisticRegression {
   }
 
   def speedyLR(df: sql.DataFrame): LogisticRegressionModel = {
+    val spark = SparkSession.builder().getOrCreate()
+    import spark.implicits._
     val data = df.select("labelIndex", "features")
       .withColumnRenamed("labelIndex", "label")
 
@@ -76,9 +85,9 @@ object LogisticRegression {
     println(s"Coefficients: ${model.coefficients} \nIntercept: ${model.intercept}")
 
     val predictions: sql.DataFrame = model.transform(testData)
-
-    val predictionsAndLabels: RDD[(Double, Double)] = predictions.select("prediction", "label")
-      .rdd.map(x => (x.get(0).asInstanceOf[Double], x.get(1).asInstanceOf[Double]))
+    val predictionsAndLabels: RDD[(Double, Double)] = predictions
+      .select("prediction", "label")
+      .as[(Double, Double)].rdd
 
     calculateMetrics(predictionsAndLabels)
 
