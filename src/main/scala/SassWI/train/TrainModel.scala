@@ -1,29 +1,16 @@
 package SassWI.train
 
-import SassWI.transformations.Etl._
 import SassWI.transformations.TransformDataset
-import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql
 import org.apache.spark.sql.SparkSession
 
-object TrainModel extends App {
+object TrainModel {
 
   /**
-   * Main function
-   *
-   * @param args arguments
+   * Trains the model
    */
-  override def main(args: Array[String]) {
-    Logger.getLogger("org").setLevel(Level.ERROR)
-    Logger.getLogger("akka").setLevel(Level.ERROR)
+  def train(spark: SparkSession): Unit = {
 
-    //Create a spark Session
-    val spark = SparkSession
-      .builder()
-      .master("local")
-      .appName("Sass")
-      .config("spark.some.config.option", "some-value")
-      .getOrCreate()
 
     //Read a file
     val df = spark.read

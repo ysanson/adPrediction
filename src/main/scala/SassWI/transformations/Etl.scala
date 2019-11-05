@@ -95,17 +95,19 @@ object Etl {
   /**
    * Calls the method to convert all the string values to numeric values on all columns of the dataframe.
    * @param df the original dataframe
-   * @param arr the array of column
    * @return the new dataframe
    */
-  @tailrec
-  def colsToLabels(df: sql.DataFrame, arr: Array[String]): sql.DataFrame = {
-    println(arr.head)
-    if (arr.tail.length > 0) {
-      val dfWithoutNull = filterNullValues(df, arr.head)
-      colsToLabels(stringToNumeric(dfWithoutNull, arr.head), arr.tail)
+  def colsToLabels(df: sql.DataFrame): sql.DataFrame = {
+    @tailrec
+    def internal(df: sql.DataFrame, arr: Array[String]): sql.DataFrame = {
+      println(arr.head)
+      if (arr.tail.length > 0) {
+        val dfWithoutNull = filterNullValues(df, arr.head)
+        internal(stringToNumeric(dfWithoutNull, arr.head), arr.tail)
+      }
+      else filterNullValues(df, arr.head)
     }
-    else filterNullValues(df, arr.head)
+   internal(df, df.columns)
   }
 
   /**

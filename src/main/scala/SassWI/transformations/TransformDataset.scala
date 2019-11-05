@@ -5,12 +5,10 @@ import org.apache.spark.sql
 
 object TransformDataset {
   def transform(originalDf: sql.DataFrame, interests: sql.DataFrame): sql.DataFrame = {
-    val df2 = originalDf.transform(EtlToLowerCase)
+    originalDf.transform(EtlToLowerCase)
       .transform(interestsAsList)
       .transform(codeToInterest(interests))
-    df2.show()
-
-    colsToLabels(df2, df2.columns)
+      .transform(colsToLabels)
       .transform(explodeInterests(interests))
       .transform(listToVector)
   }
