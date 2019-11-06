@@ -29,7 +29,7 @@ object LogisticRegression {
       println(s"Recall ($l) = " + metrics.recall(l))
     }
 
-    bMetrics.roc
+    val roc = bMetrics.roc
     // AUROC
     val auROC = bMetrics.areaUnderROC
     println("Area under ROC = " + auROC)
@@ -80,12 +80,12 @@ object LogisticRegression {
     val model = new LogisticRegression()
       .setLabelCol("label")
       .setFeaturesCol("features")
-      .setMaxIter(1500)
-      .fit(trainingData)
+      .setMaxIter(1000)
+      .fit(testData)
 
     println(s"Coefficients: ${model.coefficients} \nIntercept: ${model.intercept}")
 
-    val predictions: sql.DataFrame = model.transform(testData)
+    val predictions: sql.DataFrame = model.transform(trainingData)
     val predictionsAndLabels: RDD[(Double, Double)] = predictions
       .select("prediction", "label")
       .as[(Double, Double)].rdd

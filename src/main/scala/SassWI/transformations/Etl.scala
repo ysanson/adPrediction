@@ -138,8 +138,10 @@ object Etl {
 
     if (colName == "interests" || colName == "size" || colName == "newInterests" || colName == "id") df
     else {
-      val indexed = indexer.fit(df).transform(df)
-      indexed.drop(colName)
+      indexer
+        .fit(df)
+        .transform(df)
+        .drop(colName)
     }
   }
 

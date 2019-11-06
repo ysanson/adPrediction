@@ -24,20 +24,15 @@ object TrainModel {
         .option("header", "true")
         .option("delimiter", ";")
         .option("inferSchema", "true")
-        .csv(("InterestTraduction.csv"))
+        .csv("InterestTraduction.csv")
     }
 
     val etldf = readInterests()
 
     val data = TransformDataset.transform(df, etldf)
 
-    //LogisticRegression.logisticRegressionMethod(df6)
     val model = LogisticRegression.speedyLR(data)
     model.save("models/LogisticRegression")
-    //LogisticRegression.randomForestAlgorithm(df6)
-    //MultilayerPerceptron.MultilayerPerceptronMethod(df6)
-    //DecisionTrees.performCalculation(df6)
-
 
   }
 
