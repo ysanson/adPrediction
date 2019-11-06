@@ -171,7 +171,6 @@ object Etl {
       .setOutputCol("features")
 
     val output = finalAssembler.transform(output2).drop("vector1", "vector2")
-    output.select("features").show(false)
     output
   }
 }

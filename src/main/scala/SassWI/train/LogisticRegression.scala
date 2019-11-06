@@ -29,7 +29,7 @@ object LogisticRegression {
       println(s"Recall ($l) = " + metrics.recall(l))
     }
 
-    println(bMetrics.roc)
+    bMetrics.roc
     // AUROC
     val auROC = bMetrics.areaUnderROC
     println("Area under ROC = " + auROC)
@@ -66,24 +66,26 @@ object LogisticRegression {
   def speedyLR(df: sql.DataFrame): LogisticRegressionModel = {
     val spark = SparkSession.builder().getOrCreate()
     import spark.implicits._
-    val data = df.select("labelIndex", "features")
+
+    val data = df
+      .select("labelIndex", "features")
       .withColumnRenamed("labelIndex", "label")
 
     // Split data into 2 datasets: training data and test data
-    val splits = data.randomSplit(Array(0.8, 0.2), seed = 11L)
-    val trainingData = splits(0).cache()
-    val testData = splits(1)
+    //val splits = data.randomSplit(Array(0.8, 0.2), seed = 11L)
+    //val trainingData = splits(0).cache()
+    //val testData = splits(1)
 
     // model creation
     val model = new LogisticRegression()
       .setLabelCol("label")
       .setFeaturesCol("features")
-      .setMaxIter(1000)
-      .fit(trainingData)
+      .setMaxIter(1500)
+      .fit(data)
 
     println(s"Coefficients: ${model.coefficients} \nIntercept: ${model.intercept}")
 
-    val predictions: sql.DataFrame = model.transform(testData)
+    val predictions: sql.DataFrame = model.transform(data)
     val predictionsAndLabels: RDD[(Double, Double)] = predictions
       .select("prediction", "label")
       .as[(Double, Double)].rdd

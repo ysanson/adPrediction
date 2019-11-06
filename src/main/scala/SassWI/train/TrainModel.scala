@@ -33,12 +33,12 @@ object TrainModel {
 
     //LogisticRegression.logisticRegressionMethod(df6)
     val model = LogisticRegression.speedyLR(data)
-    model.save("model")
+    model.save("models/LogisticRegression")
     //LogisticRegression.randomForestAlgorithm(df6)
     //MultilayerPerceptron.MultilayerPerceptronMethod(df6)
     //DecisionTrees.performCalculation(df6)
 
-    spark.close()
+
   }
 
 }
