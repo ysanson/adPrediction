@@ -25,7 +25,7 @@ object Predict{
       .option("inferSchema", "true")
       .csv("InterestTraduction.csv")
 
-    val data = TransformDataset.transform(df, interests)
+    val data = TransformDataset.transform(df.drop("label"), interests)
 
     val model = LogisticRegressionModel.load("models/LogisticRegression").setPredictionCol("prediction").setFeaturesCol("features")
     val predictions = model
@@ -41,7 +41,7 @@ object Predict{
     })
 
     result
-      .drop("probability")
+      .drop("probability", "id")
       .withColumn("size", stringify(col("size")))
       .repartition(1)
       .write.option("header", "true")

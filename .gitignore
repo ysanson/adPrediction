@@ -8,3 +8,7 @@ data-students.json
 
 target/
 
+
+.DS_Store
+
+output/
