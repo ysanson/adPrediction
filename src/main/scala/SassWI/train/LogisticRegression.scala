@@ -72,7 +72,7 @@ object LogisticRegression {
       .withColumnRenamed("labelIndex", "label")
 
     // Split data into 2 datasets: training data and test data
-    val splits = data.randomSplit(Array(0.6, 0.4), seed = 11L)
+    val splits = data.randomSplit(Array(0.8, 0.2), seed = 11L)
     val trainingData = splits(0).cache()
     val testData = splits(1)
 
@@ -80,12 +80,12 @@ object LogisticRegression {
     val model = new LogisticRegression()
       .setLabelCol("label")
       .setFeaturesCol("features")
-      .setMaxIter(1000)
-      .fit(testData)
+      .setMaxIter(1500)
+      .fit(trainingData)
 
     println(s"Coefficients: ${model.coefficients} \nIntercept: ${model.intercept}")
 
-    val predictions: sql.DataFrame = model.transform(trainingData)
+    val predictions: sql.DataFrame = model.transform(testData)
     val predictionsAndLabels: RDD[(Double, Double)] = predictions
       .select("prediction", "label")
       .as[(Double, Double)].rdd
