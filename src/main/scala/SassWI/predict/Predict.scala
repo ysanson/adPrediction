@@ -16,6 +16,7 @@ object Predict{
       .option("inferSchema", "true")
       .json(dataPath)
       .withColumn("id", monotonically_increasing_id)
+      .drop("label")
 
     println("Number of records: " + df.count())
 
@@ -27,13 +28,15 @@ object Predict{
 
     val data = TransformDataset.transform(df.drop("label"), interests)
 
-    val model = LogisticRegressionModel.load("models/LogisticRegression").setPredictionCol("prediction").setFeaturesCol("features")
+    val model = LogisticRegressionModel.load("models/LogisticRegression").setPredictionCol("label").setFeaturesCol("features")
     val predictions = model
       .transform(data.select("features", "id"))
-      .withColumn("prediction", when($"prediction" === 0.0, false ).otherwise(true))
+      .withColumn("label", when($"label" === 0.0, false ).otherwise(true))
 
-    val result = df.join(predictions.select("id", "prediction", "probability"), "id")
+    val result = df.join(predictions.select("id", "label"), "id")
     result.show()
+    val resColumns: Array[String] = result.columns
+    val reorder: Array[String] = resColumns.last +: resColumns.dropRight(1)
 
     val stringify = udf((vs: Seq[String]) => vs match {
       case null => null
@@ -41,7 +44,8 @@ object Predict{
     })
 
     result
-      .drop("probability", "id")
+      .select(reorder.head, reorder.tail: _*)
+      .drop("id")
       .withColumn("size", stringify(col("size")))
       .repartition(1)
       .write.option("header", "true")
