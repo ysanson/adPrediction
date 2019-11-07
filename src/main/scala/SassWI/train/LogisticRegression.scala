@@ -28,8 +28,6 @@ object LogisticRegression {
       println(s"Precision($l) = " + metrics.precision(l))
       println(s"Recall ($l) = " + metrics.recall(l))
     }
-
-    val roc = bMetrics.roc
     // AUROC
     val auROC = bMetrics.areaUnderROC
     println("Area under ROC = " + auROC)

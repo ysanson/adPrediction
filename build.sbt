@@ -1,11 +1,7 @@
-
-lazy val root = (project in file(".")).
-  settings(
-    name := "adprediction",
-    version := "1.0",
-    scalaVersion := "2.12.10",
-    mainClass in Compile := Some("SassWI.main.Main")
-  )
+name := "adprediction"
+version := "1.0"
+scalaVersion := "2.12.10"
+mainClass in Compile := Some("SassWI.main.Main")
 
 libraryDependencies := Seq(
   // https://mvnrepository.com/artifact/org.apache.spark/spark-core
